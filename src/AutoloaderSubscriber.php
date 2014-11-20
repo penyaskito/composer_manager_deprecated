@@ -8,6 +8,7 @@
 namespace Drupal\composer_manager;
 
 use Drupal\composer_manager\ComposerManagerInterface;
+use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -45,7 +46,7 @@ class AutoloaderSubscriber implements EventSubscriberInterface {
     }
     catch (\RuntimeException $e) {
       if (PHP_SAPI !== 'cli') {
-        watchdog_exception('composer_manager', $e, NULL, array(), WATCHDOG_WARNING);
+        watchdog_exception('composer_manager', $e, NULL, array(), RfcLogLevel::WARNING);
       }
     }
   }

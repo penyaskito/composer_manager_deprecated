@@ -8,6 +8,7 @@
 namespace Drupal\composer_manager;
 
 use Drupal\composer_manager\ComposerManagerInterface;
+use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -44,8 +45,7 @@ class AutoloaderSubscriber implements EventSubscriberInterface {
     }
     catch (\RuntimeException $e) {
       if (PHP_SAPI !== 'cli') {
-        $link = l('admin/config/system/composer-manager', 'admin/config/system/composer-manager');
-        watchdog_exception('composer_manager', $e, NULL, array(), WATCHDOG_WARNING, $link);
+        watchdog_exception('composer_manager', $e, NULL, array(), WATCHDOG_WARNING);
       }
     }
   }

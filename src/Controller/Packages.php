@@ -14,6 +14,8 @@ use Drupal\composer_manager\Form\RebuildForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Routing\LinkGeneratorTrait;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\composer_manager\ComposerPackagesInterface;
 
@@ -21,6 +23,7 @@ use Drupal\composer_manager\ComposerPackagesInterface;
  * Provides a controller for display the list of composer packages.
  */
 class Packages implements ContainerInjectionInterface {
+  use LinkGeneratorTrait;
 
   /**
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
@@ -122,7 +125,7 @@ class Packages implements ContainerInjectionInterface {
       // Get the package name and description.
       if ($is_installed && !empty($installed[$package_name]['homepage'])) {
         $options = array('attributes' => array('target' => '_blank'));
-        $name = l($package_name, $installed[$package_name]['homepage'], $options);
+        $name = $this->l($package_name, Url::fromUri($installed[$package_name]['homepage']), $options);
       }
       else {
         $name = String::checkPlain($package_name);
@@ -230,7 +233,7 @@ class Packages implements ContainerInjectionInterface {
       drupal_set_message($requirements['composer_manager']['description'], 'error');
     }
     elseif ($update_needed) {
-      $args = array('!command' => 'update', '@url' => url('http://drupal.org/project/composer_manager', array('absolute' => TRUE)));
+      $args = array('!command' => 'update', '@url' => 'http://drupal.org/project/composer_manager');
       drupal_set_message(t('Packages need to be installed or removed by running Composer\'s <code>!command</code> command.<br/>Refer to the instructions on the <a href="@url" target="_blank">Composer Manager project page</a> for updating packages.', $args), 'warning');
     }
     if ($has_conflicts) {

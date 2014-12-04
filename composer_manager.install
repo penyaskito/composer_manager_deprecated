@@ -26,7 +26,7 @@ function composer_manager_requirements($phase) {
   );
 
   // Change the message slightly if we are on the package status page.
-  if ('admin/config/system/composer-manager' == current_path()) {
+  if (\Drupal::routeMatch()->getRouteName() == 'composer_manager.packages_page') {
     $instructions = t('Run <code>drush composer-json-rebuild</code> on the command line or submit the <em>Rebuild composer.json file</em> button on this page to build the file.');
   }
   else {

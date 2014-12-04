@@ -14,4 +14,4 @@ services:
 
   composer_manager.packages:
     class: Drupal\composer_manager\ComposerPackages
-    arguments: ['@lock', '@module_handler', '@composer_manager.filesystem', '@composer_manager.manager']
+    arguments: ['@lock', '@composer_manager.filesystem', '@composer_manager.manager']

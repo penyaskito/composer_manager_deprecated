@@ -7,7 +7,7 @@
 
 namespace Drupal\composer_manager;
 
-use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\Lock\LockBackendInterface;
 
 class ComposerPackages implements ComposerPackagesInterface {
@@ -18,11 +18,6 @@ class ComposerPackages implements ComposerPackagesInterface {
    * @var \Drupal\Core\Lock\LockBackendInterface
    */
   protected $lock;
-
-  /**
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface.
-   */
-  protected $moduleHandler;
 
   /**
    * @var \Drupal\composer_manager\FilesystemInterface
@@ -57,13 +52,11 @@ class ComposerPackages implements ComposerPackagesInterface {
 
   /**
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    * @param \Drupal\composer_manager\FilesystemInterface $filesystem
    * @param \Drupal\composer_manager\ComposerManagerInterface $manager
    */
-  public function __construct(LockBackendInterface $lock, ModuleHandlerInterface $module_handler, FilesystemInterface $filesystem, ComposerManagerInterface $manager) {
+  public function __construct(LockBackendInterface $lock, FilesystemInterface $filesystem, ComposerManagerInterface $manager) {
     $this->lock = $lock;
-    $this->moduleHandler = $module_handler;
     $this->filesystem = $filesystem;
     $this->manager = $manager;
   }
@@ -279,30 +272,19 @@ class ComposerPackages implements ComposerPackagesInterface {
    *
    * @throws \RuntimeException
    */
-  function getComposerJsonFiles($modules = array()) {
-    $files = array();
+  function getComposerJsonFiles() {
+    $files =  array();
+    $listing = new ExtensionDiscovery(\Drupal::root());
+    $modules = $listing->scan('module');
 
-    $module_list = $this->moduleHandler->getModuleList();
-
-    // Add listed modules to the enabled module list. It is not necessary to
-    // add \Drupal\Core\Extension\Extension as the array value as it is not
-    // necessary for composer.json.
-    if (!empty($modules)) {
-      foreach ($modules as $module_name) {
-        if (!isset($module_list[$module_name]) &&
-            drupal_get_path('module', $module_name)) {
-          $module_list[$module_name] = $module_name;
-        }
-      }
-    }
-
-    foreach ($module_list as $module_name => $filename) {
-      $filepath = drupal_get_path('module', $module_name) . '/composer.json';
+    foreach ($modules as $module_name => $module) {
+      $filepath = $module->getPath() . '/composer.json';
       $composer_json = new ComposerFile($filepath);
       if ($composer_json->exists()) {
         $files[$module_name] = $composer_json;
       }
     }
+
     return $files;
   }
 
@@ -375,7 +357,6 @@ class ComposerPackages implements ComposerPackagesInterface {
       }
     }
 
-    $this->moduleHandler->alter('composer_json', $merged);
     return $merged;
   }
 
@@ -397,11 +378,6 @@ class ComposerPackages implements ComposerPackagesInterface {
       $filepath = drupal_get_path('module', $module) . '/composer.json';
       $composer_json = new ComposerFile($filepath);
       if ($composer_json->exists()) {
-        return TRUE;
-      }
-
-      // Check if the module implements hook_composer_json_alter().
-      if ($this->moduleHandler->implementsHook($module, 'composer_json_alter')) {
         return TRUE;
       }
 

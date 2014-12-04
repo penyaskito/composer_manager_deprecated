@@ -11,16 +11,6 @@
  */
 
 /**
- * Allow modules to alter the consolidated JSON array.
- *
- * @param array &$json
- *   The consolidated JSON compiled from each module's composer.json file.
- */
-function hook_composer_json_alter(&$json) {
-  $json['minimum-stability'] = 'dev';
-}
-
-/**
  * Allow modules to perform tasks after a composer install has been completed.
  */
 function hook_composer_dependencies_install() {

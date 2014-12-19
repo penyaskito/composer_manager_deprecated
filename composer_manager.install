@@ -63,10 +63,3 @@ function composer_manager_requirements($phase) {
 
   return $requirements;
 }
-
-/**
- * Implements hook_install().
- */
-function composer_manager_install() {
-  \Drupal::service('composer_manager.manager')->registerAutoLoader();
-}

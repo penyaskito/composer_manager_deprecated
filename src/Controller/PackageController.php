@@ -2,28 +2,26 @@
 
 /**
  * @file
- * Contains \Drupal\composer_manager\Controller\Packages.
+ * Contains \Drupal\composer_manager\Controller\PackageController.
  */
 
 namespace Drupal\composer_manager\Controller;
 
+use Drupal\composer_manager\Form\RebuildForm;
+use Drupal\composer_manager\ComposerPackagesInterface;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\Xss;
-use Drupal\composer_manager\Form\RebuildForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\composer_manager\ComposerPackagesInterface;
 
 /**
- * Provides a controller for display the list of composer packages.
+ * Controller for displaying the list of composer packages.
  */
-class Packages implements ContainerInjectionInterface {
-  use LinkGeneratorTrait;
+class PackageController extends ControllerBase {
 
   /**
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
@@ -75,9 +73,9 @@ class Packages implements ContainerInjectionInterface {
     $error = FALSE;
 
     $header = array(
-      'package' => t('Package'),
-      'version' => t('Installed Version'),
-      'requirement' => t('Version Required by Module'),
+      'package' => $this->t('Package'),
+      'version' => $this->t('Installed Version'),
+      'requirement' => $this->t('Version Required by Module'),
     );
 
     try {
@@ -124,8 +122,8 @@ class Packages implements ContainerInjectionInterface {
       $has_conflict = FALSE;
       if ($not_required) {
         $update_needed = TRUE;
-        $requirement = t('No longer required');
-        $requirement .= '<div class="description">' . t('Package will be removed on the next Composer update') . '</div>';
+        $requirement = $this->t('No longer required');
+        $requirement .= '<div class="description">' . $this->t('Package will be removed on the next Composer update') . '</div>';
       }
       elseif (isset($required[$package_name])) {
 
@@ -133,7 +131,7 @@ class Packages implements ContainerInjectionInterface {
         $has_conflict = count($required[$package_name]) > 1;
         if ($has_conflict) {
           $has_conflicts = TRUE;
-          $requirement = t('Potential version conflict');
+          $requirement = $this->t('Potential version conflict');
         }
         else {
           $requirement = String::checkPlain(key($required[$package_name]));
@@ -156,15 +154,15 @@ class Packages implements ContainerInjectionInterface {
             }
           }
         }
-        $requirement .= t('Required by: ') . join(', ', $modules);
+        $requirement .= $this->t('Required by: ') . join(', ', $modules);
         $requirement .= '</div>';
       }
       else {
         // This package is a dependency of a package directly required by a
         // module. Therefore we cannot detect the required version without using
         // the Composer tool which is expensive and too slow for the web.
-        $requirement = t('N/A');
-        $requirement .= '<div class="description">' . t('Dependency for other packages') . '</div>';
+        $requirement = $this->t('N/A');
+        $requirement .= '<div class="description">' . $this->t('Dependency for other packages') . '</div>';
       }
 
       // Get the version that is installed.
@@ -173,7 +171,7 @@ class Packages implements ContainerInjectionInterface {
       }
       else {
         $update_needed = TRUE;
-        $instaled_version = t('Not installed');
+        $instaled_version = $this->t('Not installed');
       }
 
       // Set the row status.
@@ -202,7 +200,7 @@ class Packages implements ContainerInjectionInterface {
       '#theme' => 'table',
       '#header' => $header,
       '#rows' => $rows,
-      '#caption' => t('Status of Packages Managed by Composer'),
+      '#caption' => $this->t('Status of Packages Managed by Composer'),
       '#attributes' => array(
         'class' => array('system-status-report'),
       ),

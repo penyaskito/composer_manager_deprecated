@@ -183,44 +183,6 @@ class ComposerJsonMerger extends \ArrayObject {
   }
 
   /**
-   * Merges autoload properties.
-   *
-   * @param \Drupal\composer_manager\ComposerFileInterface $composer_json
-   * @param string $property
-   * @param string $module
-   *
-   * @return \Drupal\composer_manager\ComposerJsonMerger
-   */
-  public function mergeAutoload(ComposerFileInterface $composer_json, $property, $module) {
-    $values = (array) $this->getPropertyValue($composer_json, array('autoload', $property));
-    foreach ($values as $namesapce => $dirs) {
-
-      // Make the autoload paths relative to the module that the composer.json
-      // file is defined in.
-      $dirs = (array) $dirs;
-      array_walk($dirs, array($this, 'getRelativeAutoloadPath'), $module);
-
-      // Initialize the autoload prioerty.
-      if (!isset($this['autoload'][$property])) {
-        $this['autoload'][$property] = array();
-      }
-
-      // Merge strategy is dirrerent for psr-0, psr-4 properties than files,
-      // classpath properties. If the namspace variable is not an integer then
-      // assume psr-0 or psr-4.
-      if (!is_int($namesapce)) {
-        $this['autoload'][$property] += array($namesapce => array());
-        $this['autoload'][$property][$namesapce] = array_merge($this['autoload'][$property][$namesapce], $dirs);
-      }
-      else {
-        $this['autoload'][$property] = array_merge($this['autoload'][$property], $dirs);
-      }
-    }
-
-    return $this;
-  }
-
-  /**
    * @param \Drupal\composer_manager\ComposerFileInterface $composer_json
    *
    * @return \Drupal\composer_manager\ComposerJsonMerger

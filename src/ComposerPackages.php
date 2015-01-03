@@ -276,10 +276,6 @@ class ComposerPackages implements ComposerPackagesInterface {
         ->mergeProperty($composer_json, 'provide')
         ->mergeProperty($composer_json, 'suggest')
         ->mergeProperty($composer_json, 'repositories')
-        ->mergeAutoload($composer_json, 'psr-0', $module)
-        ->mergeAutoload($composer_json, 'psr-4', $module)
-        ->mergeAutoload($composer_json, 'classmap', $module)
-        ->mergeAutoload($composer_json, 'files', $module)
         ->mergeMinimumStability($composer_json)
       ;
     }

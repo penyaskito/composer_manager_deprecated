@@ -57,13 +57,6 @@ class RebuildForm implements FormInterface, ContainerInjectionInterface {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $file_dir = $this->config->get('file_dir');
-
-    $form['include'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Include the following disabled modules'),
-      '#description' => t('Provide a comma-delimited list of disabled modules to include. This is required for modules that provide a service from an external library.'),
-    );
-
     $form['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Rebuild composer.json file'),
@@ -87,13 +80,9 @@ class RebuildForm implements FormInterface, ContainerInjectionInterface {
       $other_modules = array();
       $form_state_values = $form_state->getValues();
 
-      if (!empty($form_state_values['include'])) {
-        $other_modules = preg_split('/,[\s]?/', $form_state_values['include']);
-      }
-
       /* @var $packages \Drupal\composer_manager\ComposerPackagesInterface */
       $packages = \Drupal::service('composer_manager.packages');
-      $packages->writeComposerJsonFile($other_modules);
+      $packages->writeComposerJsonFile();
 
       $filepath = drupal_realpath($packages->getManager()->getComposerJsonFile()->getFilepath());
       drupal_set_message(t('A composer.json file was written to @filepath.', array('@filepath' => $filepath)));

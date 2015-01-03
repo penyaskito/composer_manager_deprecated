@@ -216,14 +216,11 @@ class ComposerPackages implements ComposerPackagesInterface {
    * Writes the consolidated composer.json file for all modules that require
    * third-party packages managed by Composer.
    *
-   * @param array $modules
-   *   (Optional) Array of modules to include in addition to enabled modules.
-   *
    * @return int
    *
    * @throws \RuntimeException
    */
-  public function writeComposerJsonFile(array $modules = array()) {
+  public function writeComposerJsonFile() {
     $bytes = $this->composerJsonWritten = FALSE;
 
     // Ensure only one process runs at a time. 10 seconds is more than enough.
@@ -235,7 +232,7 @@ class ComposerPackages implements ComposerPackagesInterface {
 
     try {
       $composer_json = $this->manager->getComposerJsonFile();
-      $files = $this->getComposerJsonFiles($modules);
+      $files = $this->getComposerJsonFiles();
 
       $filedata = (array) $this->mergeComposerJsonFiles($files);
       $bytes = $composer_json->write($filedata);
@@ -264,9 +261,6 @@ class ComposerPackages implements ComposerPackagesInterface {
 
   /**
    * Fetches the data in each module's composer.json file.
-   *
-   * @param array $modules
-   *   (Optional) Array of modules in addition to enabled modules.
    *
    * @return \Drupal\composer_manager\ComposerFileInterface[]
    *

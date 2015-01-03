@@ -27,12 +27,6 @@ function composer_manager_drush_command() {
       'composer-rebuild',
       'composer-rebuild-file',
     ),
-    'options' => array(
-      'include' => array(
-        'description' => 'Comma delimited list of disabled modules to include in addition to enabled modules. Useful when a module provides a class with a dependency.',
-        'example-value' => 'module1,module2',
-      ),
-    ),
   );
 
   return $items;
@@ -113,12 +107,7 @@ function drush_composer_manager($command = 'install') {
  */
 function drush_composer_manager_composer_json_rebuild() {
   try {
-    $other_modules = array();
-    if ($include = drush_get_option('include')) {
-      $other_modules = explode(',', $include);
-    }
-
-    Drupal::service('composer_manager.packages')->writeComposerJsonFile($other_modules);
+    Drupal::service('composer_manager.packages')->writeComposerJsonFile();
     drush_log(dt('Completed building composer.json file.'), 'ok');
     return TRUE;
   }

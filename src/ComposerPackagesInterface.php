@@ -67,14 +67,11 @@ interface ComposerPackagesInterface {
    * Writes the consolidated composer.json file for all modules that require
    * third-party packages managed by Composer.
    *
-   * @param array $modules
-   *   (Optional) Array of modules to include in addition to enabled modules.
-   *
    * @return int
    *
    * @throws \RuntimeException
    */
-  public function writeComposerJsonFile(array $modules = array());
+  public function writeComposerJsonFile();
 
   /**
    * Returns TRUE if the composer.json file was written in this request.

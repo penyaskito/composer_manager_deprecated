@@ -44,13 +44,6 @@ class ComposerPackages implements ComposerPackagesInterface {
   private $installedJsonFiledata;
 
   /**
-   * Whether the composer.json file was written during this request.
-   *
-   * @var bool
-   */
-  protected $composerJsonWritten = FALSE;
-
-  /**
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
    * @param \Drupal\composer_manager\FilesystemInterface $filesystem
    * @param \Drupal\composer_manager\ComposerManagerInterface $manager
@@ -209,7 +202,7 @@ class ComposerPackages implements ComposerPackagesInterface {
    * @throws \RuntimeException
    */
   public function writeComposerJsonFile() {
-    $bytes = $this->composerJsonWritten = FALSE;
+    $bytes = FALSE;
 
     // Ensure only one process runs at a time. 10 seconds is more than enough.
     // It is rare that a conflict will happen, and it isn't mission critical
@@ -224,7 +217,6 @@ class ComposerPackages implements ComposerPackagesInterface {
 
       $filedata = (array) $this->mergeComposerJsonFiles($files);
       $bytes = $composer_json->write($filedata);
-      $this->composerJsonWritten = ($bytes !== FALSE);
 
       $this->lock->release(__FUNCTION__);
     }
@@ -234,17 +226,6 @@ class ComposerPackages implements ComposerPackagesInterface {
     }
 
     return $bytes;
-  }
-
-  /**
-   * Returns TRUE if the composer.json file was written in this request.
-   *
-   * @return bool
-   *
-   * @throws \RuntimeException
-   */
-  public function composerJsonFileWritten() {
-    return $this->composerJsonWritten;
   }
 
   /**

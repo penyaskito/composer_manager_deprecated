@@ -74,15 +74,6 @@ interface ComposerPackagesInterface {
   public function writeComposerJsonFile();
 
   /**
-   * Returns TRUE if the composer.json file was written in this request.
-   *
-   * @return bool
-   *
-   * @throws \RuntimeException
-   */
-  public function composerJsonFileWritten();
-
-  /**
    * Returns TRUE if at least one passed modules has a composer.json file,
    * which flags that the list of packages managed by Composer Manager have
    * changed.

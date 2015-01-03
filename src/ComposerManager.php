@@ -93,19 +93,6 @@ class ComposerManager implements ComposerManagerInterface {
   }
 
   /**
-   * Reads the consolidated composer.lock file and parses in to a PHP array.
-   *
-   * @return array
-   *
-   * @throws \RuntimeException
-   */
-  public function readComposerLockFile() {
-    $lock_file = $this->getComposerLockFile();
-    $filedata = $lock_file->exists() ? $lock_file->read() : array();
-    return $filedata + array('packages' => array());
-  }
-
-  /**
    * Returns the absolute path to the vendor directory.
    *
    * @return string

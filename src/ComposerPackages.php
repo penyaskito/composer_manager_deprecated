@@ -87,18 +87,6 @@ class ComposerPackages implements ComposerPackagesInterface {
   }
 
   /**
-   * Returns the composer.lock file data parsed as a PHP array.
-   *
-   * @return array
-   */
-  public function getComposerLockFiledata() {
-    if (!isset($this->composerLockFiledata)) {
-      $this->composerLockFiledata = $this->manager->readComposerLockFile();
-    }
-    return $this->composerLockFiledata;
-  }
-
-  /**
    * Returns the vendor/composer/installed.json file data parsed as a PHP array.
    *
    * @return array

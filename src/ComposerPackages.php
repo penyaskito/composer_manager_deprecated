@@ -268,10 +268,7 @@ class ComposerPackages implements ComposerPackagesInterface {
    */
   function getComposerJsonFiles() {
     $files =  array();
-    $listing = new ExtensionDiscovery(\Drupal::root());
-    $modules = $listing->scan('module');
-
-    foreach ($modules as $module_name => $module) {
+    foreach ($this->getModules() as $module_name => $module) {
       $filepath = $module->getPath() . '/composer.json';
       $composer_json = new ComposerFile($filepath);
       if ($composer_json->exists()) {
@@ -280,6 +277,32 @@ class ComposerPackages implements ComposerPackagesInterface {
     }
 
     return $files;
+  }
+
+  /**
+   * Returns an array of modules which should be scanned for composer.json files.
+   *
+   * @return array
+   *   An array of module objects keyed by module name.
+   */
+  protected function getModules() {
+    // Profile directories need to be specified manually when discovery is done
+    // done without bootstrapping Drupal, so start by gathering profiles.
+    $listing = new ExtensionDiscovery(\Drupal::root());
+    $listing->setProfileDirectories(array());
+    $profiles = $listing->scan('profile', FALSE);
+    // Filter out core profiles, core already ships with their requirements.
+    $core_profiles = array('minimal', 'standard', 'testing', 'testing_multilingual');
+    $profiles = array_diff_key($profiles, array_combine($core_profiles, $core_profiles));
+
+    // Now get the modules.
+    $profile_directories = array_map(function ($profile) {
+      return $profile->getPath();
+    }, $profiles);
+    $listing->setProfileDirectories($profile_directories);
+    $modules = $listing->scan('module', FALSE);
+
+    return $modules;
   }
 
   /**

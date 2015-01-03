@@ -7,7 +7,6 @@
 
 namespace Drupal\composer_manager;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\String;
 
 class ComposerFile implements ComposerFileInterface {
@@ -63,26 +62,31 @@ class ComposerFile implements ComposerFileInterface {
    * Parses the contents of the Composer file into a PHP array.
    *
    * @return array
+   *   The parsed json data.
    *
    * @throws \RuntimeException
+   * @throws \UnexpectedValueException
    */
   public function read() {
     if (!isset($this->filedata)) {
       if (!$this->exists()) {
         throw new \RuntimeException(t('File does not exist: @filepath', array('@filepath' => $this->filepath)));
       }
-      if (!$filedata = @file_get_contents($this->filepath)) {
-        throw new \RuntimeException(t('Error reading file: @filepath', array('@filepath' => $this->filepath)));
+      $json = file_get_contents($this->filepath);
+      if ($json === FALSE) {
+        throw new \RuntimeException(t('Could not read @filepath', array('@filepath' => $this->filepath)));
       }
-      $json = Json::decode($filedata);
-      if (NULL === $json) {
-        throw new \RuntimeException(t('Error parsing file: @filepath', array('@filepath' => $this->filepath)));
+
+      $filedata = json_decode($json, TRUE);
+      if (JSON_ERROR_NONE !== json_last_error()) {
+        throw new \UnexpectedValueException('Could not decode JSON: ' . $this->getLastErrorMessage());
       }
-      elseif (FALSE === $json) {
+
+      if (!is_array($filedata)) {
         $this->filedata = array();
       }
       else {
-        $this->filedata = $json;
+        $this->filedata = $filedata;
       }
     }
     return $this->filedata;
@@ -95,20 +99,56 @@ class ComposerFile implements ComposerFileInterface {
    *   The Composer filedata to encode.
    *
    * @return int
-   *   This function returns the number of bytes that were written to the file.
+   *   The number of bytes that were written to the file.
    *
-   * @throws \UnexpectedValueException
    * @throws \RuntimeException
+   * @throws \UnexpectedValueException
    */
   public function write(array $filedata) {
-    $options = JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
-    if (!$json = @json_encode($filedata, $options)) {
-      throw new \UnexpectedValueException('Error encoding filedata');
+    if (!is_writable($this->filepath)) {
+      throw new \RuntimeException(String::format('@filepath is not writable.', array('@filepath' => $this->filepath)));
     }
-    if (!$bytes = @file_put_contents($this->filepath, $json)) {
-      throw new \RuntimeException(String::format('Error writing file: @filepath', array('@filepath' => $this->filepath)));
+
+    $json = json_encode($filedata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (JSON_ERROR_NONE !== json_last_error()) {
+      throw new \UnexpectedValueException('Could not encode JSON: ' . $this->getLastErrorMessage());
     }
+
+    $bytes = file_put_contents($this->filepath, $json);
+    if ($bytes === FALSE) {
+      throw new \RuntimeException(String::format('Could not write to @filepath', array('@filepath' => $this->filepath)));
+    }
+
     return $bytes;
+  }
+
+  /**
+   * Returns a human readable json error.
+   *
+   * @return string
+   *   The human readable json error.
+   */
+  protected function getLastErrorMessage()
+  {
+    if (function_exists('json_last_error_msg')) {
+      // PHP 5.5 and later have a built-in function for this.
+      return json_last_error_msg();
+    }
+
+    switch (json_last_error()) {
+      case JSON_ERROR_DEPTH:
+        return 'Maximum stack depth exceeded';
+      case JSON_ERROR_STATE_MISMATCH:
+        return 'Underflow or the modes mismatch';
+      case JSON_ERROR_CTRL_CHAR:
+        return 'Unexpected control character found';
+      case JSON_ERROR_SYNTAX:
+        return 'Syntax error, malformed JSON';
+      case JSON_ERROR_UTF8:
+        return 'Malformed UTF-8 characters, possibly incorrectly encoded';
+      default:
+        return 'Unknown error';
+    }
   }
 
 }

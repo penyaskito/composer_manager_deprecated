@@ -105,7 +105,7 @@ class ComposerFile implements ComposerFileInterface {
    * @throws \UnexpectedValueException
    */
   public function write(array $filedata) {
-    if (!is_writable($this->filepath)) {
+    if (file_exists($this->filepath) && !is_writable($this->filepath)) {
       throw new \RuntimeException(String::format('@filepath is not writable.', array('@filepath' => $this->filepath)));
     }
 

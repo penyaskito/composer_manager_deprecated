@@ -129,4 +129,10 @@ class SettingsForm extends ConfigFormBase implements FormInterface, ContainerInj
     ->save();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return ['composer_manager.settings'];
+  }
 }

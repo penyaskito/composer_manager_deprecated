@@ -112,10 +112,10 @@ class PackageController extends ControllerBase {
         $name = $this->l($package_name, Url::fromUri($installed[$package_name]['homepage']), $options);
       }
       else {
-        $name = String::checkPlain($package_name);
+        $name = SafeMarkup::checkPlain($package_name);
       }
       if ($is_installed && !empty($installed[$package_name]['description'])) {
-        $name .= '<div class="description">' . String::checkPlain($installed[$package_name]['description']) . '</div>';
+        $name .= '<div class="description">' . SafeMarkup::checkPlain($installed[$package_name]['description']) . '</div>';
       }
 
       // Get the version required by the module.
@@ -134,7 +134,7 @@ class PackageController extends ControllerBase {
           $requirement = $this->t('Potential version conflict');
         }
         else {
-          $requirement = String::checkPlain(key($required[$package_name]));
+          $requirement = SafeMarkup::checkPlain(key($required[$package_name]));
         }
 
         // Build the list of modules that require this package.
@@ -147,10 +147,10 @@ class PackageController extends ControllerBase {
               $modules[] = 'Drupal';
             }
             elseif (isset($module_info['name'])) {
-              $modules[] = String::checkPlain($module_info['name']);
+              $modules[] = SafeMarkup::checkPlain($module_info['name']);
             }
             else {
-              $modules[] = String::checkPlain($module_name);
+              $modules[] = SafeMarkup::checkPlain($module_name);
             }
           }
         }
@@ -167,7 +167,7 @@ class PackageController extends ControllerBase {
 
       // Get the version that is installed.
       if ($is_installed) {
-        $instaled_version = String::checkPlain($installed[$package_name]['version']);
+        $instaled_version = SafeMarkup::checkPlain($installed[$package_name]['version']);
       }
       else {
         $update_needed = TRUE;

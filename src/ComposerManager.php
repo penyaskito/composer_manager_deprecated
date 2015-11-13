@@ -122,7 +122,7 @@ class ComposerManager implements ComposerManagerInterface {
   public function getCorePackages() {
     if (!$this->corePackages) {
 
-      $composer_lock = new ComposerFile(DRUPAL_ROOT . '/core/vendor/composer/installed.json');
+      $composer_lock = new ComposerFile(DRUPAL_ROOT . '/vendor/composer/installed.json');
       $filedata = $composer_lock->read();
 
       foreach ($filedata as $package) {
@@ -167,7 +167,7 @@ class ComposerManager implements ComposerManagerInterface {
       }
 
       $this->autoloaderRegistered = TRUE;
-      if ($filepath != DRUPAL_ROOT . '/core/vendor/autoload.php') {
+      if ($filepath != DRUPAL_ROOT . '/vendor/autoload.php') {
         require $filepath;
       }
     }

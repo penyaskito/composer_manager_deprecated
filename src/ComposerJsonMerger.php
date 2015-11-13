@@ -41,7 +41,7 @@ class ComposerJsonMerger extends \ArrayObject {
     // is sourced twice as Composer is smart enough to register the autoloader
     // only once.
     // @see https://drupal.org/node/2212171
-    $data['autoload']['files'] = array($this->getRelativeDrupalRootDirectory() . 'core/vendor/autoload.php');
+    $data['autoload']['files'] = array($this->getRelativeDrupalRootDirectory() . 'vendor/autoload.php');
 
     // Calculates the relative path the the configured vendor directory.
     $vendor_dir = $this->getRelativeVendorDirectory();
